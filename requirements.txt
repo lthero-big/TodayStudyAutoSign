@@ -3,7 +3,7 @@ requests_toolbelt
 tencentcloud_sdk_python
 urllib3
 beautifulsoup4
-pycryptodome
+pycryptodomex
 pyDes
 PyYAML
 lxml
