@@ -8,3 +8,5 @@ pyDes
 PyYAML
 lxml
 rsa
+pycryptodome
+crypto
