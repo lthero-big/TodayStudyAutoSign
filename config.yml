@@ -1,0 +1,61 @@
+author: 若离QQ：2909998156
+# 调试模式，用于寻找错误出现的坐标，默认为false
+# 特别提示：调试完成后请记得将debug改为false
+# 特别提示：调试完成后请记得将debug改为false
+# 特别提示：调试完成后请记得将debug改为false
+debug: false
+# 推送方式：0：邮件推送；1：qmsg推送；2：待添加更多推送
+sendType: 0
+# 当且仅当sendType为0时有用，邮箱API的地址
+emailApiUrl: 'https://api.ruoli.cc/sendMail'
+# 当且仅当sendType为1时有用，qmsg的Key（如需使用请自行更改）
+myQmsgKey: ''
+
+
+
+#用户组配置
+##################################################
+# 温馨提示：请仔细注意每个模板是属于哪个任务类型的配置！##
+##################################################
+users:
+  # 第一个用户配置
+  # 以下配置为工作日志
+  # 这里默认仅适配宜宾学院，其他学校自行修改
+  - user:
+      # 任务类型（收集：0、签到：1、查寝2）
+      type: 1
+      # 学校名称
+      schoolName: 学校
+      #username 学号或者工号
+      username: ''
+      #password 密码
+      password: ''
+      # 地址信息
+      address: ''
+      #给每个人设置不同的sendType,默认为邮箱
+      sendType: 0
+      #sendKey 当sendType为0时代表邮箱，当sendType为1时代表接收消息的QQ号码
+      sendKey: ''
+      # 附上经纬度查询地址（请自行选择自己的学校地址，address，lon，lat都要填查询到的）：http://api.map.baidu.com/lbsapi/getpoint/index.html
+      # 经纬度信息
+      lon:
+      #经纬度信息
+      lat:
+      # 是否检查表单的标题（1代表检查，0代表不检查）
+      checkTitle: 1
+      #abnormalReason 反馈信息（这个一般不用配置，但是不能删除，删除会报错）
+      abnormalReason: ''
+      # # 表单信息
+      forms:
+        - form:
+            title: 1.今日你的健康情况是？
+            value: 健康
+        - form:
+            title: 2.今日您的健康码颜色是？
+            value: 绿色
+        - form:
+            title: 3.今日您是否存在其他异常情况？
+            value: 无
+        - form:
+            title: 4.今日是否在校？
+            value: 是的，在校
