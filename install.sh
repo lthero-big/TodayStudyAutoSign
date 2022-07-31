@@ -148,25 +148,36 @@ cronCreate() {
     judge "cron 安装完成"
 
     if [[ $(crontab -l | grep -c "autoSign.sh") -lt 1 ]]; then
-      if read -t 10 -p "输入每天几点打卡:" Hour
-	then
-    	echo "每天$Hour点整打卡"
-      else
-    	echo "\n默认10点打卡。"
-      fi
-	if [[ "${ID}" == "Centos" ]]; then
+        if read -t 10 -p "输入每天几点打卡:" Hour
+            then
+                echo "每天$Hour点整打卡"
+            else
+                echo "\n默认10点打卡。"
+        fi
+	    if [[ "${ID}" == "Centos" ]]; then
           #        sed -i "/acme.sh/c 0 3 * * 0 \"/root/.acme.sh\"/acme.sh --cron --home \"/root/.acme.sh\" \
           #        &> /dev/null" /var/spool/cron/root
-        sed -i "1,3d" /var/spool/cron/root
-	    sed -i "1i 0 ${Hour} * * * ${conf_dir}/autoSign.sh >> ${conf_dir}/autoSignLog 2>&1" /var/spool/cron/root
-      else
+        # sed -i "/#/d" /var/spool/cron/root
+	        sed -i "1i 0 ${Hour} * * * ${conf_dir}/autoSign.sh >> ${conf_dir}/autoSignLog 2>&1" /var/spool/cron/root
+        else
           #        sed -i "/acme.sh/c 0 3 * * 0 \"/root/.acme.sh\"/acme.sh --cron --home \"/root/.acme.sh\" \
           #        &> /dev/null" /var/spool/cron/crontabs/root
-        sed -i "1,3d" /var/spool/cron/crontabs/root
-	    sed -i "1i 0 ${Hour} * * * ${conf_dir}/autoSign.sh >> ${conf_dir}/autoSignLog 2>&1" /var/spool/cron/crontabs/root
-      fi
+        # sed -i "/#/d" /var/spool/cron/crontabs/root
+	        sed -i "1i 0 ${Hour} * * * ${conf_dir}/autoSign.sh >> ${conf_dir}/autoSignLog 2>&1" /var/spool/cron/crontabs/root
+        fi
+        judge "cron 计划任务更新"
+    else
+        echo -e "${Red}cron 计划任务已经存在，未重新创建，是否要修改打卡时间?${Font}"
+        echo -e "${Green}1.${Font}  是 "
+        echo -e "${Green}2.${Font}  否"
+        read -rp "请输入数字：" cgCron
+        if [ $cgCron -eq 1 ];then
+            cronUpdate
+        else
+            echo "未修改打卡时间"
+        fi
     fi
-    judge "cron 计划任务更新"
+    
 }
 cronUpdate() {
     if [[ $(crontab -l | grep -c "autoSign.sh") -eq 1 ]]; then
@@ -176,20 +187,17 @@ cronUpdate() {
             echo "超时未输入，默认10点打卡。"
 	    Hour=10
         fi
-
 	    if [[ "${ID}" == "Centos" ]]; then
-            sed -i '1d' /var/spool/cron/root
+            sed -i "/autoSign.sh/d" /var/spool/cron/root
             sed -i "1i 0 ${Hour} * * * ${conf_dir}/autoSign.sh >> ${conf_dir}/autoSignLog 2>&1" /var/spool/cron/root
         else
-            sed -i '1d' /var/spool/cron/crontabs/root
+            sed -i "/autoSign.sh/d" /var/spool/cron/crontabs/root
 	        sed -i "1i 0 ${Hour} * * * ${conf_dir}/autoSign.sh >> ${conf_dir}/autoSignLog 2>&1" /var/spool/cron/crontabs/root
-      fi
-      judge "cron 计划任务更新"
+        fi
+        judge "cron 计划任务更新"
+    else
+        echo "未发现自动打卡的cron 任务"
     fi
-}
-infoUpdate(){
-    echo "信息配置文件位置:${project_dir}/config.yml"
-    echo "具体如何配置请查看:${project_dir}/config_demo.yml"
 }
 
 installMain(){
@@ -204,13 +212,42 @@ installMain(){
     echo -e "${Green}—————————————— 脚本运行完成 ——————————————${Font}"
 }
 
+infoUpdate(){
+    echo "信息配置文件位置:${project_dir}/config.yml"
+    echo "命令：vim ${project_dir}/config.yml"
+    echo "具体如何配置请查看:${project_dir}/config_demo.yml"
+    echo "命令：vim ${project_dir}/config_demo.yml"
+}
+
+reinstall(){
+    if [[ $(crontab -l | grep -c "autoSign.sh") -eq 1 ]]; then
+	    if [[ "${ID}" == "Centos" ]]; then
+            sed -i '/autoSign.sh/d' /var/spool/cron/root
+        else
+	        sed -i '/autoSign.sh/d' /var/spool/cron/crontabs/root
+      fi
+      judge "cron 任务删除完成"
+    fi
+    echo "是否保留日志?"
+    echo -e "${Green}1.${Font}  保留 "
+    echo -e "${Green}2.${Font}  不保留"
+    read -rp "请输入数字：" iskeepLog
+    if [ $iskeepLog -eq 1 ];then
+        rm -r $project_dir
+    else
+        rm -r $conf_dir
+    fi
+    judge "项目删除完成"
+}
+
 main() {
     
     echo -e "—————————————— autoSign脚本 ——————————————"""
     echo -e "${Green}0.${Font}  安装脚本"
     echo -e "${Green}1.${Font}  修改打卡时间 "
     echo -e "${Green}2.${Font}  修改登录信息 "
-    echo -e "${Green}3.${Font}  退出 \n"
+    echo -e "${Green}3.${Font}  卸载 "
+    echo -e "${Green}4.${Font}  退出 \n"
 
     read -rp "请输入数字：" menu_num
     case $menu_num in
@@ -224,6 +261,9 @@ main() {
         infoUpdate
         ;;
     3)
+        reinstall
+        ;;
+    4)
         exit 0
         ;;
     *)
